@@ -6,7 +6,7 @@
 
 cases_Adults_Relapse1_unmatched<-read.xlsx("Linda_Cohort_Metadata/AdultsData/AdultsMetadata.xlsx", sheetName = "Relapse1")
 #The coloumn names are marked with "." so we need to change to -
-new_col_names=str_replace_all(rownames(Linda_GE_Classifier2), "\\.","-")
+new_col_names=str_replace_all(rownames(Linda_GE_Classifier2), "\\-",".")
 rownames(Linda_GE_Classifier2)<-new_col_names
 
 temp1=cases_Adults_Relapse1_unmatched$AdultDiagnosis[!is.na(cases_Adults_Relapse1_unmatched$AdultDiagnosis)]

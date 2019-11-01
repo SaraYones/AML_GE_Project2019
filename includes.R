@@ -3,6 +3,7 @@
 #Installing packages which cant be installed using intstall.packages
 #BiocManager::install("sva")
 
+
 library(ggbiplot)
 library(arules)
 library('Hmisc')
@@ -53,7 +54,7 @@ library(GOexpress)
 
 
 #BiocManager::install("clusterProfiler", version = "3.8")
-#library(devtools)
+library(devtools)
 install_github("komorowskilab/R.ROSETTA")
 
 library(R.ROSETTA)

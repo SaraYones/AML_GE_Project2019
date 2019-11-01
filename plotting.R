@@ -67,9 +67,9 @@ plotPCA= function(filepath,GeneExpressionMatrixlocal,Groups,variable){
   #ir.pca <- prcomp(GeneExpressionMatrixlocal,
   #                center = TRUE,
   #               scale. = TRUE) 
-  GeneExpressionMatrixlocal=Linda_GE_Classifier2
-  Groups=decision_Linda2
-  variable="PCA_Adult"
+  #GeneExpressionMatrixlocal=GeneExpressionMatrixlocal
+  #Groups=decision_Linda2
+  #variable="PCA_Adult"
   ir.pca <- prcomp(GeneExpressionMatrixlocal,
                    center = TRUE) 
   

@@ -18,6 +18,7 @@ savePDF=function(myplots,variable,filepath,discretizemethod="")
 writeOutput=function(path,date,folder1,folder2,features,clusteredRulesMCFS,recalculatedResultRosettalocal,rules,enrichment,enrichmentTitle,flag)
 {
   #Create folder in the path
+  print(path)
   ifelse(!dir.exists(paste(path,date,sep="")), dir.create(paste(path,date,sep="")), FALSE)
  # dir.create(paste(path,date,sep=""))
   ifelse(!dir.exists(paste(path,date,"/",folder1,sep="")), dir.create(paste(path,date,"/",folder1,sep="")), FALSE)
@@ -35,6 +36,7 @@ writeOutput=function(path,date,folder1,folder2,features,clusteredRulesMCFS,recal
   View(clusteredRulesMCFS)
    clusters=heatmap.F(t(clusteredRulesMCFS), colors=c('white','blue'),distmethod='pearson')
    print("Iam here")
+   print(flag)
   write.csv(clusters,paste(temp,"/Clusters-",Sys.Date(),".csv",sep = ""))
  # my.plots[[1]]=recordPlot()
   #savePDF(my.plots,paste("HeatMapAllGenes",Sys.Date()),paste(temp,"/",sep=""))
