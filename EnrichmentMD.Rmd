@@ -1,0 +1,51 @@
+---
+title: "Gene Enrichment , Pathway analysis and Boxplots"
+author: "SaraYones"
+date: "6/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gene Enrichment and boxplots
+Figure 1: 100 Features
+```{r figure1, echo=FALSE}
+library(gprofiler2)
+gostplot(Linda_Adults_Johnson_PC$enrichment[[1]], capped = TRUE, interactive = TRUE)
+```
+Figure 2: Optimal number (40)
+```{r Figure2, echo=FALSE}
+library(gprofiler2)
+gostplot(Linda_Adults_Johnson_PC$enrichment[[2]], capped = TRUE, interactive = TRUE)
+```
+Figure 3: All Features
+```{r Figure3, echo=FALSE}
+library(gprofiler2)
+#Linda_Adults_Johnson_PC$clusterRulesandWriteoutput()
+gostplot(Linda_Adults_Johnson_PC$enrichment[[3]], capped = TRUE, interactive = TRUE)
+```
+Boxplots:\
+ITK\
+```{r ITK, echo=FALSE}
+boxplot(Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D")],"-", "\\."),"ENSG00000113263"],Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(!(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D"))],"-", "\\."),"ENSG00000113263"],Linda_GE_Classifer2BN[which(grepl("BM.*",rownames(Linda_GE_Classifer2BN))),"ENSG00000113263"])
+```
+\
+CD5\
+```{r CD5, echo=FALSE}
+boxplot(Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D")],"-", "\\."),"ENSG00000110448"],Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(!(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D"))],"-", "\\."),"ENSG00000110448"],Linda_GE_Classifer2BN[which(grepl("BM.*",rownames(Linda_GE_Classifer2BN))),"ENSG00000110448"])
+```
+\
+KCTD10\
+```{r KCTD10, echo=FALSE}
+boxplot(Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D")],"-", "\\."),"ENSG00000110906"],Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(!(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D"))],"-", "\\."),"ENSG00000110906"],Linda_GE_Classifer2BN[which(grepl("BM.*",rownames(Linda_GE_Classifer2BN))),"ENSG00000110906"])
+
+```
+\
+GZMA\
+```{r GZMA, echo=FALSE}
+boxplot(Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D")],"-", "\\."),"ENSG00000145649"],Linda_GE_Classifer2BN[str_replace_all(sampleUsageAdults[which(!(gsub("(AML.*)\\.(D)","\\2",str_replace_all(sampleUsageAdults, "-", "\\.")) %in% "D"))],"-", "\\."),"ENSG00000145649"],Linda_GE_Classifer2BN[which(grepl("BM.*",rownames(Linda_GE_Classifer2BN))),"ENSG00000145649"])
+
+```
+
