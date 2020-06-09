@@ -1,22 +1,34 @@
+
 Classifier <- setRefClass("Classifier",
                           #          fields = list(classifier = "data.frame",MCFSFeatures = "list", Accuracies = "list",classifierMCFSgenes="data.frame",
                           #             path="string",Accuracies_Genetic="list",classifierMCFSgenes="list",Classifier_MCFS="as.data.frame",resultRosettaMCFSGenetic="as.data.frame"
                           # ),
-                          fields = list(classifier = "data.frame",flagAccuracy="character",MCFSFeatures = "character", Accuracies = "numeric",AccuraciesGenetic="numeric", path="character",classifierMCFSgenes="character",Classifier_MCFS="data.frame",annotation="character",resultRosettaMCFSGenetic="list",resultRosettaMCFSJohnson="list",resultRosettaMCFSMerged="list",recalculatedResultRosettaMCFSJohnson="data.frame",recalculatedResultRosettaMCFSGenetic="data.frame"),
+                          fields = list(classifier = "data.frame",flagAccuracy="character",MCFSFeatures = "character",rank="numeric", Accuracies = "numeric",AccuraciesGenetic="numeric", path="character",classifierMCFSgenes="character",Classifier_MCFS="data.frame",annotation="character",resultRosettaMCFSGenetic="list",resultRosettaMCFSJohnson="list",resultRosettaMCFSMerged="list",recalculatedResultRosettaMCFSJohnson="data.frame",recalculatedResultRosettaMCFSGenetic="data.frame",enrichment="list",kegg="gseaResult",ontology="character",numberOfFeatures="numeric",keyType="character",flagEnrichment="logical",underSample="logical"),
                           methods =  list(findAccuracies = function() {
                             classifier <<- classifier
                             MCFSFeatures<<-MCFSFeatures
                             flagAccuracy<<-flagAccuracy
+                            underSample<<-underSample
+                           #ontology<<--ontology
+                            numberOfFeatures<<--numberOfFeatures
+                          #  keyType<<--keyType
+                           # kegg<<--kegg
+                           # enrichment<<--enrichment
                             
                             if(flagAccuracy=="Genetic")
                             {
+                              if(underSample==TRUE)
+                                AccuraciesGenetic<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy,underSample = TRUE)
+                              else
+                                AccuraciesGenetic<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy,underSample = FALSE)
                               
-                              AccuraciesGenetic<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy)
                             }else if(flagAccuracy=="Johnson")
                             {
                               Sys.sleep(4)
-                              Accuracies<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy)
-                              
+                              if(underSample==TRUE)
+                                Accuracies<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy,TRUE)
+                              else
+                                Accuracies<<-compareAccuracies(classifier,200,as.character(MCFSFeatures),flagAccuracy,FALSE)
                               
                               
                             }
@@ -34,6 +46,7 @@ Classifier <- setRefClass("Classifier",
                             resultRosettaMCFSGenetic<<- resultRosettaMCFSGenetic
                             recalculatedResultRosettaMCFSJohnson<<-recalculatedResultRosettaMCFSJohnson
                             recalculatedResultRosettaMCFSGenetic<<-recalculatedResultRosettaMCFSGenetic
+                            underSample<<-underSample
                             #   recalculatedResultRosettaMCFS<<-recalculatedResultRosettaMCFS
                             classifier<<-classifier
                             flagAccuracy<<-flagAccuracy
@@ -41,10 +54,23 @@ Classifier <- setRefClass("Classifier",
                             genes<<-genes
                             if(flagAccuracy=="Johnson")
                             {
-                              maxAccuracy<-which(Accuracies==max(Accuracies))*10
+                              if(length(which(Accuracies==max(Accuracies))>1))
+                                
+                              {
+                                temp=which(Accuracies==max(Accuracies))
+                                maxAccuracy<-temp[length(temp)]*10
+                              }else{
+                                maxAccuracy<-which(Accuracies==max(Accuracies))*10
+                              }
                             }else if(flagAccuracy=="Genetic") {
-                              
-                              maxAccuracy<-which(AccuraciesGenetic==max(AccuraciesGenetic))*10
+                              if(length(which(AccuraciesGenetic==max(AccuraciesGenetic))>1))
+                                
+                              {
+                                temp=which(AccuraciesGenetic==max(AccuraciesGenetic))
+                                maxAccuracy<-temp[length(temp)]*10
+                              }else{
+                                maxAccuracy<-which(AccuraciesGenetic==max(AccuraciesGenetic))*10
+                              }
                               
                             }
                             
@@ -68,11 +94,17 @@ Classifier <- setRefClass("Classifier",
                             
                             colnames(Classifier_MCFS)<<-append(annotation,"decision")
                             
+                            if(underSample==TRUE)
+                              resultRosettaMCFSGenetic<<-rosetta(Classifier_MCFS,classifier="StandardVoter",discrete=FALSE, discreteMethod="EqualFrequency",cvNum=5,reducer="Genetic",underSample =T,ruleFiltration=TRUE,ruleFiltrSupport=c(1,3) , discreteParam=3)
+                            else
+                              resultRosettaMCFSGenetic<<-rosetta(Classifier_MCFS,classifier="StandardVoter",discrete=FALSE, discreteMethod="EqualFrequency",cvNum=5,reducer="Genetic",underSample =F,ruleFiltration=TRUE,ruleFiltrSupport=c(1,3) , discreteParam=3)
                             
-                            resultRosettaMCFSGenetic<<-rosetta(Classifier_MCFS,classifier="StandardVoter",discrete=FALSE, discreteMethod="EqualFrequency",cvNum=10,reducer="Genetic",ruleFiltration=TRUE,ruleFiltrSupport=c(1,3) , discreteParam=3)
                             Sys.sleep(10)
                             # resultRosettaMCFSJohnson<<-NULL
-                            resultRosettaMCFSJohnson<<-rosetta(Classifier_MCFS)
+                            if(underSample==TRUE)
+                              resultRosettaMCFSJohnson<<-rosetta(Classifier_MCFS,cvNum=5,underSample=T)
+                            else
+                              resultRosettaMCFSJohnson<<-rosetta(Classifier_MCFS,underSample=F)
                             resultRosettaMCFSMerged<<-list("Johnson"=resultRosettaMCFSJohnson,"Genetic"=resultRosettaMCFSGenetic)
                             
                             recalculatedResultRosettaMCFSJohnson<<-recalculateRules(Classifier_MCFS,resultRosettaMCFSJohnson$main)
@@ -80,7 +112,7 @@ Classifier <- setRefClass("Classifier",
                             # recalculatedResultRosettaMCFSGenetic<<-NULL
                             recalculatedResultRosettaMCFSGenetic<<-recalculateRules(Classifier_MCFS,resultRosettaMCFSGenetic$main)
                             resultRosettaMCFSMerged<<-list("JohnsonResult"=resultRosettaMCFSJohnson,"GeneticResult"=resultRosettaMCFSGenetic,"recalculatedResultJohnson"=recalculatedResultRosettaMCFSJohnson,"recalculatedResultGenetic"=recalculatedResultRosettaMCFSGenetic)
-                            plotDistributionCategory(list(filtered_MCFS[[1]]$gene_type),list(c("MCFS")),"Distribution_Classes_FS",paste(getwd(),"/Adults_Results/Linda_Adults_Cohort_Results",sep=""),"")
+                            plotDistributionCategory(list(filtered_MCFS[[1]]$gene_type),list(c("MCFS")),paste("Distribution_Classes_FS","_",flagAccuracy,sep=""),paste(getwd(),path,sep=""),"")
                             
                           },
                           
@@ -92,27 +124,103 @@ Classifier <- setRefClass("Classifier",
                             resultRosettaMCFSJohnson<<-resultRosettaMCFSJohnson
                             recalculatedResultRosettaMCFSJohnson<<-recalculatedResultRosettaMCFSJohnson
                             path<<-path
+                            enrichment<<-enrichment
+                            flagEnrichment<<-flagEnrichment
+                            if(flagEnrichment==FALSE)
+                            {
+                            tempJohnson=recalculatedResultRosettaMCFSJohnson[(which(!(recalculatedResultRosettaMCFSJohnson$supportLHS==0))),]
+                            tempGenetic=recalculatedResultRosettaMCFSGenetic[(which(!(recalculatedResultRosettaMCFSGenetic$supportLHS==0))),]
+                            enrichment<<-enrichment
+                              
+                            clusteredRulesMCFS<<-clusterRules(tempJohnson,rownames(Classifier_MCFS))
                             
-                            clusteredRulesMCFS<<-clusterRules(recalculatedResultRosettaMCFSJohnson,rownames(Classifier_MCFS))
+                            clusteredRulesMCFSGenetic<<-clusterRules(tempGenetic,rownames(Classifier_MCFS))
+                            enrichment<<-computeEnrichment()
+                             
+                            writeOutput(paste(getwd(),path,sep = ""),Sys.Date(),"AllGenes","Genetic",append(annotation,filtered_MCFS[[2]]),clusteredRulesMCFSGenetic,tempGenetic,resultRosettaMCFSGenetic$main,enrichment,"enrichment",FALSE,FALSE)
+                         
+                            writeOutput(paste(getwd(),path,sep = ""),Sys.Date(),"AllGenes","Johnson",append(annotation,filtered_MCFS[[2]]),clusteredRulesMCFS, tempJohnson,resultRosettaMCFSJohnson$main,enrichment ,"enrichment",FALSE,FALSE)
+                            }
+                            else
+                            {
+                              print(length(enrichment))
+                              writeOutput(paste(getwd(),path,sep = ""),Sys.Date(),"AllGenes","Genetic",append(annotation,filtered_MCFS[[2]]),clusteredRulesMCFSGenetic,tempGenetic,resultRosettaMCFSGenetic$main,enrichment,"enrichment",TRUE,FALSE)
+                              
+                              
+                              
+                            }
                             
-                            clusteredRulesMCFSGenetic<<-clusterRules(recalculatedResultRosettaMCFSGenetic,rownames(Classifier_MCFS))
-                            writeOutput(paste(getwd(),path,sep = ""),Sys.Date(),"AllGenes","Genetic",append(annotation,filtered_MCFS[[2]]),clusteredRulesMCFSGenetic,recalculatedResultRosettaMCFSGenetic,resultRosettaMCFSGenetic$main,enrichment = NULL,"enrichment",FALSE)
+                          }, computeEnrichment = function() {
                             
-                            writeOutput(paste(getwd(),path,sep = ""),Sys.Date(),"AllGenes","Johnson",append(annotation,filtered_MCFS[[2]]),clusteredRulesMCFS, recalculatedResultRosettaMCFSJohnson,resultRosettaMCFSJohnson$main,enrichment = NULL,"enrichment",FALSE)
+                            
+                            MCFSFeatures<<-MCFSFeatures
+                            classifier<<-classifier
+                            enrichment<<-enrichment
+                            ontology<<-ontology
+                            numberOfFeatures<<-numberOfFeatures
+                            keyType<<-keyType
+                            classifierMCFSgenes<<-classifierMCFSgenes
+                            optimalNumber<<-length(classifierMCFSgenes)
+                            enrichment<<-enrichment
+                            
+                            enrichment1=GOenrichment(MCFSFeatures[1:numberOfFeatures],colnames(classifier)[1:length(classifier)-1],keyType,ontology)
+                            enrichment2=GOenrichment(MCFSFeatures[1:optimalNumber],colnames(classifier)[1:length(classifier)-1],keyType,ontology)
+                            enrichment3=GOenrichment(MCFSFeatures,colnames(classifier)[1:length(classifier)-1],keyType,ontology)
+                            enrichment=list(enrichment1=enrichment1,enrichment2=enrichment2,enrichment3=enrichment3)
+                           # plotEnrichment(enrichment,"Enrichment  All Genes",paste(paste(getwd(),path,sep = ""),Sys.Date(),"/","enrichment.csv",sep = ""))
+                            
+                          },
+                          computeKEGG = function() {
+                            kegg<<-kegg
+                            keyType<<-keyType
+                            MCFSFeatures<<-MCFSFeatures
+                            numberOfFeatures<<-numberOfFeatures
+                            rank<<-rank
+                            geneList=NULL
+                            geneList=1:numberOfFeatures
+                            names(geneList)=MCFSFeatures[1:numberOfFeatures]
+                            
+                            eg = bitr(MCFSFeatures[1:numberOfFeatures], fromType=keyType,toType="ENTREZID", OrgDb="org.Hs.eg.db")
+                            # geneList[match(eg$ENSEMBL, names(geneList))]
+                            # temp=geneList[match(eg$ENSEMBL, names(geneList))]
+                            if(keyType=="ENSMBL")
+                            {
+                              temp=eg[match(names(geneList),eg$ENSEMBL),]
+                              temp=temp[which(!is.na(temp)),]
+                              temp=temp[which(!is.na(temp$ENSEMBL)),]
+                              temp=unique(temp)
+                              
+                              geneList=geneList[names(geneList)%in% temp$ENSEMBL]
+                              View(geneList)
+                            } else if(keyType=="SYMBOL")
+                              
+                            {
+                              temp=eg[match(names(geneList),eg$SYMBOL),]
+                              temp=temp[which(!is.na(temp)),]
+                              temp=temp[which(!is.na(temp$SYMBOL)),]
+                              temp=unique(temp)
+                              
+                              geneList=geneList[names(geneList)%in% temp$SYMBOL]
+                              View(geneList)
+                              
+                              
+                            }
+                            
+                            names(geneList)=temp$ENTREZID
+                            
+                            kegg <- gseKEGG(geneList     = sort(geneList, decreasing = TRUE),
+                                            organism     = 'hsa',
+                                            nPerm        = 1000,
+                                            minGSSize    = 1000,
+                                            pvalueCutoff = 0.8,
+                                            verbose      = FALSE)
                             
                             
                           }
                           
-                          
                           )
                           
 )
-
-
-
-
-
-
 
 
 #-----------------Functions Classifier-------------------------------------------------
@@ -128,11 +236,11 @@ FilterFeatures=function(file,numberOfFeatures)
 {
   
   features=fread(file)
-  features=features[seq(1,numberOfFeatures),"attribute"]
-  return(features$attribute)
+  features=features[seq(1,numberOfFeatures),c("attribute","RI_norm")]
+  return(list(features$attribute,features$RI_norm))
   
 }
-compareAccuracies=function(Decisiontable,limit,features,flag)
+compareAccuracies=function(Decisiontable,limit,features,flag,underSample)
 {
   Accuracies=NULL
   resultRosetta=NULL
@@ -150,7 +258,11 @@ compareAccuracies=function(Decisiontable,limit,features,flag)
     #print(limit)
     #print(features)
     if(flag =="Johnson")
-  { resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],classifier="StandardVoter", discreteMethod="EqualFrequency",discreteParam=3)
+  { if(underSample==TRUE)
+      resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],classifier="StandardVoter", discreteMethod="EqualFrequency",cvNum = 5,underSample=T,discreteParam=3)
+  else
+  resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],classifier="StandardVoter", discreteMethod="EqualFrequency",underSample=F,discreteParam=3)
+  
     } else if(flag =="Genetic")
     {
   #resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],classifier="StandardVoter",discrete=FALSE, discreteMethod="EqualFrequency",cvNum=5, discreteParam=3)
@@ -159,8 +271,12 @@ compareAccuracies=function(Decisiontable,limit,features,flag)
  #        #Genetic
  #      View(Decisiontable[,append(features[1:i],"decision")])
  #      print(str(Decisiontable[,append(features[1:i],"decision")]))
-    resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],cvNum = 10,reducer="Genetic",ruleFiltration=TRUE)
-    
+      if(underSample==TRUE)
+        resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],cvNum = 5,reducer="Genetic",underSample=T,ruleFiltration=TRUE)
+    else{
+      resultRosetta=rosetta(Decisiontable[,append(features[1:i],"decision")],cvNum = 10,reducer="Genetic",underSample=F,ruleFiltration=TRUE)
+      
+    }
   
   }# print(resultRosetta)
     Accuracies=append(Accuracies,resultRosetta$quality$accuracyMean)

@@ -170,9 +170,11 @@ readQuantification =function(files,samples,filepath){
 }
 
 
-normalizeGE=function(GeneExpression,group,runpipeline,remove,logflag)
+normalizeGE=function(GeneExpression,group,runpipeline,remove,logflag,secondpassFilter)
 {
   #LAMLGE=t(GeneExpression)
+  if (secondpassFilter==FALSE)
+  {
   if(runpipeline==TRUE)
   {
     remove_cols=nearZeroVar(GeneExpression)
@@ -195,7 +197,7 @@ normalizeGE=function(GeneExpression,group,runpipeline,remove,logflag)
   {
 print("I am here")
   dge <- DGEList(counts=cpmd,group=group)
-  keep <- rowSums(cpm(dge)>1) >= 2
+  keep <- rowSums(cpm(dge)>1) >= 5 
   print(keep)
   dge <- dge[keep, , keep.lib.sizes=FALSE]
   print("hello")
@@ -224,6 +226,22 @@ print("I am here")
   View(LAMLGEClassifier)
   dim(LAMLGEClassifier)
   return(LAMLGEClassifier)
+  }
+  else{
+    
+    remove_cols=nearZeroVar(GeneExpression)
+    if(length(remove_cols)!=0)
+    {
+      cpmd=(GeneExpression[,-remove_cols])
+    }else{
+      cpmd=GeneExpression
+    }
+    dge <- DGEList(counts=t(cpmd),group=group)
+    keep <- rowSums(cpm(dge$counts)>1)>= 5
+    keep=which(keep==TRUE)
+    keep=names(keep)
+    return(list(remove_genes=remove_cols,keep_genes=keep))
+  }
 }
 
 orderOnReference=function(matrix,reference)

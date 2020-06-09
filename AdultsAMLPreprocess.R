@@ -6,7 +6,7 @@
 
 cases_Adults_Relapse1_unmatched<-read.xlsx("Linda_Cohort_Metadata/AdultsData/AdultsMetadata.xlsx", sheetName = "Relapse1")
 #The coloumn names are marked with "." so we need to change to -
-new_col_names=str_replace_all(rownames(Linda_GE_Classifier2), "\\-",".")
+new_col_names=str_replace_all(rownames(Linda_GE_Classifier2), "\\.","-")
 rownames(Linda_GE_Classifier2)<-new_col_names
 
 temp1=cases_Adults_Relapse1_unmatched$AdultDiagnosis[!is.na(cases_Adults_Relapse1_unmatched$AdultDiagnosis)]
@@ -88,5 +88,6 @@ form_Lietal <- ~ (Age) + (1|sex) + (1|Cytogenetics) +(1|mutGenes)+(1|FAB)+(1|WBC
 checkVariableEffects(list(as.data.frame(lietalcountData[,1:dim(lietalcountData)[2]-1])),list(as.data.frame(metadata_matched_Lietal)),form_Lietal,paste(getwd(),"/Linda_Adults_Cohort_Results/Lietal_Cohort_Results",sep=""),"variableEffectsAdults")
 
 
+checkVariableEffects(list(as.data.frame(Lietal_countDataAN[,1:dim(Lietal_countDataAN)[2]-1])),list(as.data.frame(metadata_matched_Lietal)),form_Lietal,paste(getwd(),"/Adults_Results/Lietal_Cohort_Results/AfterIntegration/Leital_Adults_AN",sep=""),"variableEffectsAdults")
 
 

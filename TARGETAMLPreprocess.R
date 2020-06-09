@@ -54,10 +54,10 @@ TARGET_GE_ClassifierAllNormalized=normalizeGE(TARGET_GE_ClassifierAll,as.factor(
 
 write.csv(t(Linda_GE_Classifier),"Linda_Cohort_Results/WholeCohort/Normalized-ENSMBLID.csv")
 
-TARGET_GE_ClassifierAll_Annotated=annotateDecisionTable(TARGET_GE_ClassifierAllNormalized,genes)
+TARGET_GE_ClassifierAll_Annotated=annotateDecisionTable(TARGET_GE_ClassifierAll,genes)
 
 
-write.csv(t(TARGET_GE_ClassifierAll_Annotated),"/Users/sarayones/Desktop/Projects/")
+write.csv(t(TARGET_GE_ClassifierAll),"/Users/saryo614/Desktop/Projects/TARGET_GE_ClassifierAll_Ensmbl.csv")
 
 #-----------------------------------Explore Samples---------------------------------------------
 metadata=read.xlsx("harmonized/TARGET_AML_Discovery_ClinicalData_20170525.xlsx",header = TRUE, sheetName = "Clinical Data")

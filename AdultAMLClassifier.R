@@ -6,15 +6,68 @@ library("Boruta")
 library("R.ROSETTA")
 library(biomaRt)
 
-#
-
+#Protein coding genes for Linda
+filter=getAnnotatedGenes(genes,colnames(Linda_GE_Classifier2))
+protein_coding=filter[[1]][which(filter[[1]]$gene_type =="protein_coding"),geneID]
+non_pseudo_genes=filter[[1]][which(!(grepl("*\\_pseudogene",filter[[1]]$gene_type))),]$geneID
+#------------------------------------------------
+#filtering for new sample usage data this part should be also put in adults preprocess
+tempLinda_GE_Classifier2=Linda_GE_Classifier2
+tempdecision_Linda2=decision_Linda2
+index=which(rownames(Linda_GE_Classifier2) %in% str_replace_all(sampleUsageAdults, "-", "\\."))
+Linda_GE_Classifier2=Linda_GE_Classifier2[index,]
+decision_Linda2=decision_Linda2[index]
+#Linda_GE_Classifier2=cbind.data.frame(Linda_GE_classifer2,decision_Linda2)
+Linda_GE_Classifier2$decision=decision_Linda2
+Linda_GE_Classifier2=Linda_GE_Classifier2[,append(protein_coding,"decision")]
 #Linda_GE_Classifier2 is ready now to apply feature selection and everything
 
 write.table(Linda_GE_Classifier2,"MCFS_AML_Adults_GE_Classifier",row.names=TRUE)
+#names(Linda_GE_Classifier2)[names(Linda_GE_Classifier2)=="decision_Linda2"]="decision"
+#Linda_GE_Classifer2=as.data.frame(Linda_GE_Classifier2)
+
+Linda_Adults_Primary_Johnson<- Classifier(classifier = Linda_GE_Classifier2,flagAccuracy="Johnson",path="/Adults_Results/Linda_Adults_Cohort_Results",
+                                  MCFSFeatures=FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/WithoutIntegration/Linda_Adults_WI_PC-1/Linda_Adults_WI_PC-1__RI.csv",1000)[[1]]
+                                  
+,underSample=TRUE)
+
+
+Linda_Adults_Primary_Johnson<- Classifier(classifier = Linda_GE_Classifier2,flagAccuracy="Johnson",path="/Adults_Results/Linda_Adults_Cohort_Results",
+                                          MCFSFeatures=as.character(FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/MCFSoutput/LindaunmatchedAdults4/LindaunmatchedAdults4__RI.csv",1000)[[1]])
+                                          
+)
+
+Linda_Adults_Primary_Genetic<- Classifier(classifier = Linda_GE_Classifier2,flagAccuracy="Genetic",path="/Adults_Results/Linda_Adults_Cohort_Results/Genetic",
+                                          MCFSFeatures=FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/MCFSoutput/LindaunmatchedAdults4/LindaunmatchedAdults4__RI.csv",1000)
+                                          
+)
+
+Linda_Adults_Primary_Johnson<-Linda_Adults_Primary_Johnson$copy()
+Linda_Adults_Primary_Johnson$MCFSFeatures<-FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/MCFSoutput/LindaunmatchedAdults4/LindaunmatchedAdults4__RI.csv",1000)[[1]]
+Linda_Adults_Primary_Johnson$rank<-FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/MCFSoutput/LindaunmatchedAdults4/LindaunmatchedAdults4__RI.csv",1000)[[2]]
+
+Linda_Adults_Primary_Genetic<-Linda_Adults_Primary_Genetic$copy()
+Linda_Adults_Primary_Johnson$findAccuracies()
+Linda_Adults_Primary_Genetic$findAccuracies()
+Linda_Adults_Primary_Johnson$createAnnotatedClassifier()
+Linda_Adults_Primary_Genetic$createAnnotatedClassifier()
+Linda_Adults_Primary_Johnson$clusterRulesandWriteoutput()
+Linda_Adults_Primary_Genetic$clusterRulesandWriteoutput()
+
+
+require(VisuNet)
+
+
+#Run VisuNet
+#Remember to click DONE once you finish working on VisuNet
+visunet(Linda_Adults_Primary_Johnson$resultRosettaMCFSJohnson$main, type = "RDF")
+visunet(Linda_Adults_Primary_Johnson$resultRosettaMCFSGenetic$main, type = "RDF")
+
+
+
 
 
 Linda_Adult_MCFSFeatures=FilterFeatures("Adults_Results/Linda_Adults_Cohort_Results/MCFSoutput/LindaunmatchedAdults2/LindaunmatchedAdults2__RI.csv",1000)
-names(Linda_GE_Classifier2)[names(Linda_GE_Classifier2)=="decision_Linda2"]="decision"
 Linda_Adult_Accuracies=compareAccuracies(Linda_GE_Classifier2,200,as.character(Linda_Adult_MCFSFeatures))
 Linda_Adult_Accuracies_Genetic=compareAccuracies(Linda_GE_Classifier2,200,as.character(Linda_Adult_MCFSFeatures))
 

@@ -288,14 +288,19 @@ plotClustersMetadataPlot=function(ordered_metadata_for_exploratory,clusters,meta
 plotEnrichment=function(enriched,titleGO,temp)
 {
   
- 
+print("here")
+View(enriched)
+  gostplot(enriched, capped = TRUE, interactive = TRUE)
+  
+
+#  pp <- publish_gostplot(enriched, width = NA, height = NA, filename = temp )
   
  # my.plots <- vector(length(GE), mode='list')
   
 #  graphics.off()
  
  # pdf(temp)
-  dotplot(enriched, showCategory=30,title=titleGO)
+ # dotplot(enriched, showCategory=30,title=titleGO)
  # dev.off()
   
 }

@@ -2,8 +2,6 @@
 #Trying again
 #Installing packages which cant be installed using intstall.packages
 #BiocManager::install("sva")
-
-
 library(ggbiplot)
 library(arules)
 library('Hmisc')
@@ -30,7 +28,7 @@ library(variancePartition)
 library('variancePartition')
 library("rmcfs")
 library("Boruta")
-install_github("komorowskilab/R.ROSETTA")
+#install_github("komorowskilab/R.ROSETTA")
 library("R.ROSETTA")
 library(biomaRt)
 library(GOexpress)
@@ -49,13 +47,12 @@ library(org.Hs.eg.db)
 library(topGO)
 library(clusterProfiler)
 library(GOexpress) 
-
-
+library(genefilter)
 
 
 #BiocManager::install("clusterProfiler", version = "3.8")
 library(devtools)
-install_github("komorowskilab/R.ROSETTA")
+#install_github("komorowskilab/R.ROSETTA")
 
 library(R.ROSETTA)
 
@@ -70,5 +67,6 @@ library(factoextra)
 library(ggbiplot)
 #library(ggfortify)
 library(maftools)
-
-
+require(VisuNet)
+library(GOSemSim)
+library(gprofiler2)

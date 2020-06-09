@@ -6,6 +6,9 @@ files_Linda<-read.xlsx("Linda_Cohort_Metadata/Metadata_RNA_Sara.xls", sheetName 
 
 files2_Linda<-read.xlsx("Linda_Cohort_Metadata/Svea/20190123_AML_Metadata.xls", sheetName = "Sheet1")
 files2_Linda<-files2_Linda[,c("Sample.ID","Age.at.Sampling..Yrs.")]
+sampleUsageAdults<-read.xlsx(file="Linda_Cohort_Metadata/SampleUsageRNA.xlsx", sheetName = "AdultsUnpaired")
+sampleUsageAdults=as.character(levels(sampleUsageAdults$cases))
+sampleUsageAdults<-str_replace_all(sampleUsageAdults,"\\.","-")
 #Change to Matched or Unmatched
 #files_Linda<-str_replace_all(files_Linda$Matched, "_|-", ".")
 #files_Linda<-str_replace_all(files_Linda$Unmatched, "_|-", ".")
@@ -76,10 +79,10 @@ Linda_GE_Classifier2=t(Linda_GE_Classifier2)
 colnames(Linda_GE_Classifier2)<-colnames
 #-----------------------------------------------------------
 #Linda_GE_Classifier=normalizeGE(Linda_GE_Classifier,as.factor(decision_Linda),TRUE)
-x=normalizeGE(Linda_GE_Classifier2,as.factor(decision_Linda2),FALSE,TRUE,TRUE)
+x=normalizeGE(Linda_GE_Classifier2,as.factor(decision_Linda2),TRUE,TRUE,TRUE,FALSE)
 
 #normalizing Lietal data
-y=normalizeGE(t(lietalcountData),as.factor(decisionLietal),TRUE,TRUE,TRUE)
+y=normalizeGE(t(lietalcountData),as.factor(decisionLietal),TRUE,TRUE,TRUE,FALSE)
 
 #logx=log2(x+0.00001)
 #plotPCA(getwd(),logx,batches,"PCA_Adult")
@@ -89,7 +92,7 @@ y=normalizeGE(t(lietalcountData),as.factor(decisionLietal),TRUE,TRUE,TRUE)
 Linda_GE_Classifier2temp=Linda_GE_Classifier2
 lietalcountDataTemp=lietalcountData
 
-Linda_GE_Classifier2=x
+Linda_GE_Classifier2<-x
 lietalcountData=y
 
 #if you want to get back to normal
@@ -98,7 +101,9 @@ lietalcountData=lietalcountDataTemp
   
 Linda_GE_Classifier2=removeBatchEffect(x,as.factor(batches),batches,1)
 Linda_GE_Classifier2=removeBatchEffect(Linda_GE_Classifier2,as.factor(batches),batches,1)
-Linda_GE_Classifier2=t(Linda_GE_Classifier2)
+Linda_GE_Classifier2<-t(Linda_GE_Classifier2)
+
+
 pcaResult=plotPCA(getwd(),Linda_GE_Classifier2,decision_Linda2,"PCA_Adult")
 #Found there is no batch effects from PCA
 pcaResult=plotPCA(getwd(),lietalcountData,decisionLietal,"PCA_AdultLietal")
@@ -185,12 +190,19 @@ decision_Linda2[which(grepl("*(.Ref)?(.D)?(.P)?",rownames(Linda_GE_Classifier2))
 decision_Linda2[which(grepl("*.R1(.P)?",rownames(Linda_GE_Classifier2)))]="Relapse1"
 decision_Linda2[which(grepl("*.R2(.P)?",rownames(Linda_GE_Classifier2)))]="Relapse2"
 decision_Linda2[which(grepl("*.R3(.P)?",rownames(Linda_GE_Classifier2)))]="Relapse3"
+decision_Linda2[which(grepl("*.R3(.P)?",rownames(Linda_GE_Classifier2)))]="Relapse3"
 decision_Linda2[which(grepl("BM.*",rownames (Linda_GE_Classifier2)))]="Control"
+#If i want to filter based on latest pure relapse
+decision_Linda2[which(grepl("Relapse?",decision_Linda2))]="Relapse"
+decisionLietal[which(grepl("Relapse?",decisionLietal))]="Relapse"
 #Relabeled Cases
 decision_Linda2[which(grepl("AML056.Ref",rownames (Linda_GE_Classifier2)))]="Relapse1"
 decision_Linda2[which(grepl("AML017.R2",rownames (Linda_GE_Classifier2)))]="Relapse1"
 rownames(Linda_GE_Classifier2)[which(grepl("AML056.Ref",rownames (Linda_GE_Classifier2)))]="AML056.R1"
 rownames(Linda_GE_Classifier2)[which(grepl("AML017.R2",rownames (Linda_GE_Classifier2)))]="AML017.R1"
+rownames(Linda_GE_Classifier2)[which(grepl("AML052.R2",rownames (Linda_GE_Classifier2)))]="AML052.R1"
+rownames(Linda_GE_Classifier2)[which(grepl("AML052.R2",rownames (Linda_GE_Classifier2)))]="AML052.R1"
+
 #---------------
 decision_Linda2=unlist(decision_Linda2)
 

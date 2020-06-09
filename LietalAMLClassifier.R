@@ -10,8 +10,50 @@ library(biomaRt)
 
 #remove the . in the ENSEMBL ID
 colnames(lietalcountData)<-gsub("(.*)\\.(.*)","\\1",colnames(lietalcountData))
+lietalcountData=lietalcountData[,unique(colnames(lietalcountData))]
+#Protein coding genes for Lietal
+filter=getAnnotatedGenes(genes,colnames(lietalcountData))
+protein_coding=filter[[1]][which(filter[[1]]$gene_type =="protein_coding"),geneID]
+non_pseudo_genes=filter[[1]][which(!(grepl("*\\_pseudogene",filter[[1]]$gene_type))),]$geneID
+#------------------------------------------------
+lietalcountData=lietalcountData[,protein_coding]
+lietalcountData$decision=as.character(decisionLietal)
+new_col_names=str_replace_all(rownames(lietalcountData), "Patient_AML","lietal")
+rownames(lietalcountData)<-new_col_names
 
-write.table(lietalcountData,"MCFS_AML_Lietal_GE_Classifier",row.names=TRUE)
+
+write.table(lietalcountData,"MCFS_AML_Adults_GE_Classifier",row.names=TRUE)
+
+Lietal_Adults_Primary_Johnson<- Classifier(classifier = lietalcountData,flagAccuracy="Johnson",path="/Adults_Results/Lietal_Cohort_Results/WithoutIntegration",
+                                          MCFSFeatures=FilterFeatures("Adults_Results/Lietal_Cohort_Results/WithoutIntegration/Lietal_WI_PC-1/Lietal_WI_PC-1__RI.csv",1000)[[1]],
+                                          
+underSample=FALSE)
+
+
+
+Lietal_Adults_Primary_Genetic<- Classifier(classifier =lietalcountData,flagAccuracy="Genetic",path="/Adults_Results/Lietal_Cohort_Results/Genetic",
+                                          MCFSFeatures=FilterFeatures("Adults_Results/Lietal_Cohort_Results/MCFSoutput/LietalmatchedAdults1/LietalmatchedAdults1__RI.csv",1000)
+                                          
+)
+
+Lietal_Adults_Primary_Johnson<-Lietal_Adults_Primary_Johnson$copy()
+Lietal_Adults_Primary_Genetic<-Lietal_Adults_Primary_Genetic$copy()
+
+Lietal_Adults_Primary_Johnson$findAccuracies()
+Lietal_Adults_Primary_Genetic$findAccuracies()
+
+Lietal_Adults_Primary_Johnson$createAnnotatedClassifier()
+Lietal_Adults_Primary_Genetic$createAnnotatedClassifier()
+
+Lietal_Adults_Primary_Johnson$clusterRulesandWriteoutput()
+Lietal_Adults_Primary_Genetic$clusterRulesandWriteoutput()
+
+
+
+
+visunet(Lietal_Adults_Primary_Johnson$resultRosettaMCFSJohnson$main, type = "RDF")
+visunet(Lietal_Adults_Primary_Johnson$resultRosettaMCFSGenetic$main, type = "RDF")
+
 
 
 Lietal_MCFSFeatures=FilterFeatures("Linda_Adults_Cohort_Results/MCFSoutput/LietalmatchedAdults1/LietalmatchedAdults1__RI.csv",1000)

@@ -1,22 +1,38 @@
-GOenrichment=function(features,background,flag)
+GOenrichment=function(features,background,flag,ontology)
 {
   
   if (flag=="ENSEMBL")
   {
     
+    # ego <- enrichGO(gene          = features,
+    #                 universe      = background,
+    #                 OrgDb         = org.Hs.eg.db,
+    #                 keyType       = 'ENSEMBL',
+    #                 ont           = ontology,
+    #                 pAdjustMethod = "BH",
+    #                 pvalueCutoff  = 0.01,
+    #                 qvalueCutoff  = 0.01)
+    # 
+    # bp2 <- clusterProfiler::simplify(ego, cutoff=0.7, by="p.adjust", select_fun=min)
+    # 
+    gosters=gost(features,organism = "hsapiens",significant = FALSE,domain_scope = "custom",custom_bg=background,evcodes = TRUE)
+    
+  }else{
+    
+    
     ego <- enrichGO(gene          = features,
                     universe      = background,
                     OrgDb         = org.Hs.eg.db,
-                    keyType       = 'ENSEMBL',
-                    ont           = "BP",
+                    keyType       = 'SYMBOL',
+                    ont           = ontology,
                     pAdjustMethod = "BH",
                     pvalueCutoff  = 0.01,
                     qvalueCutoff  = 0.01)
     
-    bp2 <- simplify(ego, cutoff=0.7, by="p.adjust", select_fun=min)
+    bp2 <- clusterProfiler::simplify(ego, cutoff=0.7, by="p.adjust", select_fun=min)
     
   }
-  return(bp2)
+  return(gosters)
   
   
   
